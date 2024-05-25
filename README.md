@@ -22,7 +22,7 @@ View and query the data in the Streamlit app.
 - plotly
 
 ## Settingup Instructions
-- Clone the repository to your local machine using `GITHUB LINK` .
+- Clone the repository to your local machine using `` .
 - Install Python (if not already installed).
 - Install the required libraries.
 - Obtain a Google API key for the YouTube API from the Google Developers Console.
