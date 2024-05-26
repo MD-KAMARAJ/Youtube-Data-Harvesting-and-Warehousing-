@@ -42,12 +42,8 @@ with open(r"C:\Users\HP USER\Desktop\youtube_logo_4k_1.jpg", "rb") as image_file
 set_bg_hack(encoded_image)
 
 st.title(":red[YouTube] Data Harvesting and Warehousing")
-   
-with st.sidebar:
-    st.header("Inputs here")
 
-
-tab1, tab2, tab3 = st.tabs(["API Key", "Channel_id","Queries"])
+tab1, tab2, tab3, = st.tabs(["Inputs & Data saving","Specified Channel data","Queries"])
 
 
 with tab1:
@@ -56,6 +52,8 @@ with tab1:
     api_key = st.text_input("API Key", placeholder="Enter your API key")
     if api_key:
         st.success("api_key is verified!, Go to next tab")
+    st.write("Enter your Channel ID here.")
+    channel_id = st.text_input("Channel ID", placeholder="Enter your Channel ID")
         
 youtube = googleapiclient.discovery.build(api_service_name, api_version, developerKey=api_key)
  
@@ -187,13 +185,24 @@ def fetch_comments(video_id):
         comments.append(top_comment)
     return comments
 
-with tab2:
-    st.write("Enter your Channel ID here.")
-    channel_id = st.text_input("Channel ID", placeholder="Enter your Channel ID")
+with tab1:
     if st.button("Submit Channel ID"):
-        st.write(f"Channel ID submitted: {channel_data(channel_id)['channel_name']}")
-
-    if st.button("Fetch and Save Data"):
+        channel_info = channel_data(channel_id)
+        st.table(pd.DataFrame([channel_info]))
+        
+        video_info_list = video_data(channel_id)
+        st.table(pd.DataFrame(video_info_list))
+        
+        comments_data = []
+        for video_info in video_info_list:
+            video_id = video_info['video_id']
+            comments = fetch_comments(video_id)
+            comments_data.extend(comments)
+        
+        st.table(pd.DataFrame(comments_data))
+    
+with tab1:
+    if st.button("Save to MYSQL"):
         myconnection = pymysql.connect(host='127.0.0.1', user='root', passwd='Kamaraj@2000', database='youtube_streamlit')
         cursor = myconnection.cursor()
         # Ensure tables exist before inserting data
@@ -327,7 +336,6 @@ comment_query = "SELECT * FROM comment_data WHERE video_id IN (SELECT video_id F
 
 myconnection = pymysql.connect(host='127.0.0.1', user='root', passwd='Kamaraj@2000', database='youtube_streamlit')
 
-st.sidebar.title("Specific channel data")    
 
 # Get the list of channel names from the database
 channel_names = pd.read_sql_query("SELECT channel_name FROM channel_data", myconnection)['channel_name'].tolist()
@@ -345,8 +353,6 @@ if selected_channel:
     comment_data = pd.read_sql_query(comment_query, myconnection, params=[channel_data['channel_playlist_id'].iloc[0]])
     tab2.subheader("Comment Data")
     tab2.write(comment_data)
-
-st.sidebar.header("Queries")
 
 with tab3:
     tab3.header("Queries you may have")
