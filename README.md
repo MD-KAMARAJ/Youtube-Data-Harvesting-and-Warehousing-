@@ -48,5 +48,6 @@ View and query the data in the Streamlit app.
 **KAMARAJ M.D** - *Initial work* - MD-KAMARAJ
 
 ## License
+This project is licensed under the Apache-2.0 license - see the LICENSE file for details
 
 ------------------------
